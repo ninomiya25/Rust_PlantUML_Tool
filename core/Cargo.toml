@@ -1,0 +1,25 @@
+[package]
+name = "plantuml-editor-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[features]
+default = ["client"]
+client = ["dep:reqwest", "dep:tokio"]
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+reqwest = { workspace = true, features = ["json", "rustls-tls"], optional = true }
+tokio = { workspace = true, optional = true }
+base64 = { workspace = true }
+plantuml_encoding = "2.0.3"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockito = "1.2"
