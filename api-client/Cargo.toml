@@ -1,0 +1,15 @@
+[package]
+name = "plantuml-editor-api-client"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+plantuml-editor-core = { path = "../core", default-features = false }
+reqwest = { workspace = true, features = ["json"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
