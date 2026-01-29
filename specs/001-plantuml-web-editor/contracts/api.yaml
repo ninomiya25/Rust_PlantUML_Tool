@@ -1,0 +1,222 @@
+openapi: 3.0.3
+info:
+  title: PlantUML Web Editor API
+  description: |
+    社内向けセキュアなPlantUMLウェブエディタのバックエンドAPI。
+    PlantUMLテキストから図画像 (PNG/SVG) への変換機能を提供。
+  version: 0.1.0
+  contact:
+    name: 開発チーム
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: 開発環境
+  - url: http://plantuml.internal.company.com/api/v1
+    description: 本番環境 (社内ネットワーク限定)
+
+tags:
+  - name: conversion
+    description: PlantUML変換操作
+
+paths:
+  /convert:
+    post:
+      tags:
+        - conversion
+      summary: PlantUMLテキストを図画像に変換
+      description: |
+        PlantUMLテキストを受け取り、PNG/SVG形式の図画像を生成する。
+        
+        **動作**:
+        - 成功時: 画像バイナリを返却 (Content-Type: image/png or image/svg+xml)
+        - 構文エラー時: エラー内容を含むPNG画像を返却 (HTTP 200)
+        - システムエラー時: JSON形式のエラーレスポンス (HTTP 500)
+        - ネットワークエラー時: JSON形式のエラーレスポンス (HTTP 503/504)
+        
+        **パフォーマンス**:
+        - 100行以下: 90パーセンタイルで400ms以内
+        - 300行以下: 2秒以内 (目安)
+      operationId: convertPlantUml
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertRequest'
+            examples:
+              シーケンス図:
+                value:
+                  plantuml_text: "@startuml\nAlice -> Bob: Hello\nBob -> Alice: Hi!\n@enduml"
+                  format: "png"
+              クラス図 (SVG):
+                value:
+                  plantuml_text: "@startuml\nclass User {\n  +id: int\n  +name: string\n}\n@enduml"
+                  format: "svg"
+      responses:
+        '200':
+          description: 変換成功 (正常な図またはエラー画像)
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+              examples:
+                成功:
+                  summary: 正常な図のPNG画像
+                構文エラー:
+                  summary: PlantUML構文エラーを含むPNG画像
+            image/svg+xml:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: バリデーションエラー (入力が不正)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                空入力:
+                  value:
+                    error: "入力エラー: コンテンツが空です。PlantUML構文を確認してください。"
+                タグ欠如:
+                  value:
+                    error: "入力エラー: @startumlタグが見つかりません。PlantUML構文を確認してください。"
+                サイズ超過:
+                  value:
+                    error: "入力エラー: コンテンツが大きすぎます: 250000文字 (上限: 240000文字)。PlantUML構文を確認してください。"
+        '500':
+          description: システムエラー (PlantUMLサーバー障害等)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                システムエラー:
+                  value:
+                    error: "システムエラーが発生しました。PlantUMLサーバーの状態を確認してください。"
+        '503':
+          description: サービス利用不可 (PlantUMLサーバー応答なし)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                接続エラー:
+                  value:
+                    error: "ネットワークエラーが発生しました。接続を確認して再試行してください。"
+        '504':
+          description: タイムアウト (30秒以内に応答なし)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                タイムアウト:
+                  value:
+                    error: "ネットワークエラーが発生しました。接続を確認して再試行してください。"
+
+  /health:
+    get:
+      tags:
+        - monitoring
+      summary: ヘルスチェック
+      description: APIサーバーとPlantUMLサーバーの稼働状態を確認
+      operationId: healthCheck
+      responses:
+        '200':
+          description: 正常稼働中
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "ok"
+                plantuml_server: "available"
+                timestamp: "2025-12-15T10:30:00Z"
+        '503':
+          description: サービス利用不可
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "error"
+                plantuml_server: "unavailable"
+                timestamp: "2025-12-15T10:30:00Z"
+
+components:
+  schemas:
+    ConvertRequest:
+      type: object
+      required:
+        - plantuml_text
+        - format
+      properties:
+        plantuml_text:
+          type: string
+          description: PlantUMLテキスト
+          minLength: 1
+          maxLength: 24000
+          example: "@startuml\nAlice -> Bob: Hello\n@enduml"
+        format:
+          type: string
+          enum: [png, svg]
+          description: 出力画像形式
+          example: "png"
+      example:
+        plantuml_text: "@startuml\nAlice -> Bob: Hello\n@enduml"
+        format: "png"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: |
+            エラーメッセージ (Constitution UX原則に準拠)
+            - 何が起きたか (問題の説明)
+            - なぜ起きたか (根本原因)
+            - どう解決するか (具体的な次のステップ)
+          example: "システムエラーが発生しました。PlantUMLサーバーの状態を確認してください。"
+        details:
+          type: string
+          description: エラー詳細 (オプション、デバッグ用)
+          example: "Connection refused: localhost:8081"
+      example:
+        error: "システムエラーが発生しました。PlantUMLサーバーの状態を確認してください。"
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - plantuml_server
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+          description: APIサーバーの稼働状態
+          example: "ok"
+        plantuml_server:
+          type: string
+          enum: [available, unavailable]
+          description: PlantUMLサーバーの接続状態
+          example: "available"
+        timestamp:
+          type: string
+          format: date-time
+          description: チェック実行時刻 (ISO 8601形式)
+          example: "2025-12-15T10:30:00Z"
+      example:
+        status: "ok"
+        plantuml_server: "available"
+        timestamp: "2025-12-15T10:30:00Z"
+
+  securitySchemes: {}
+
+security: []
