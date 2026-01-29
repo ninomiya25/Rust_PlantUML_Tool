@@ -1,62 +1,69 @@
-# Implementation Plan: [FEATURE]
+# 実装計画: [FEATURE]
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Input**: `/specs/[###-feature-name]/spec.md` の機能仕様
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**注記**: このテンプレートは `/speckit.plan` コマンドにより入力されます。実行ワークフローについては `.specify/templates/commands/plan.md` を参照してください。
 
-## Summary
+## 概要
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[機能仕様から抽出: 主要要件 + 調査からの技術的アプローチ]
 
-## Technical Context
+## 技術的コンテキスト
 
 <!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
+  要アクション: このセクションの内容をプロジェクトの技術的詳細で置き換えてください。
+  ここでの構造は、反復プロセスをガイドするためのアドバイザリーとして提示されています。
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: [例: Python 3.11, Swift 5.9, Rust 1.75 または要明確化]  
+**Primary Dependencies**: [例: FastAPI, UIKit, LLVM または要明確化]  
+**Storage**: [該当する場合、例: PostgreSQL, CoreData, files または N/A]  
+**Testing**: [例: pytest, XCTest, cargo test または要明確化]  
+**Target Platform**: [例: Linux server, iOS 15+, WASM または要明確化]
+**Project Type**: [single/web/mobile - ソース構造を決定]  
+**Performance Goals**: [ドメイン固有、例: 1000 req/s, 10k lines/sec, 60 fps または要明確化]  
+**Constraints**: [ドメイン固有、例: <200ms p95, <100MB memory, offline-capable または要明確化]  
+**Scale/Scope**: [ドメイン固有、例: 10k users, 1M LOC, 50 screens または要明確化]
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*ゲート: Phase 0 調査前に合格する必要があります。Phase 1 設計後に再チェックしてください。*
 
-[Gates determined based on constitution file]
+この機能が以下の原則に準拠していることを確認してください:
 
-## Project Structure
+- **シンプルさ優先**: 新規依存関係は最小限か？標準ライブラリで実現できないか？
+- **テスト優先**: テストを先に記述する計画があるか？
+- **コード品質**: clippy、fmt、ドキュメントの基準を満たせるか？
+- **パフォーマンス**: 1000行/100ms、メモリ使用量 3倍以内の基準を満たせるか？
+- **UX一貫性**: エラーメッセージ、CLI出力形式は統一されているか？
+- **バージョニング**: 破壊的変更がある場合、移行パスは計画されているか？
 
-### Documentation (this feature)
+**違反がある場合**: 複雑さの追跡テーブルで正当化すること
+
+## プロジェクト構造
+
+### ドキュメント (この機能)
 
 ```text
 specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+├── plan.md              # このファイル (/speckit.plan コマンド出力)
+├── research.md          # Phase 0 出力 (/speckit.plan コマンド)
+├── data-model.md        # Phase 1 出力 (/speckit.plan コマンド)
+├── quickstart.md        # Phase 1 出力 (/speckit.plan コマンド)
+├── contracts/           # Phase 1 出力 (/speckit.plan コマンド)
+└── tasks.md             # Phase 2 出力 (/speckit.tasks コマンド - /speckit.plan では作成されません)
 ```
 
-### Source Code (repository root)
+### ソースコード (リポジトリルート)
 <!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
+  要アクション: 以下のプレースホルダーツリーをこの機能の具体的なレイアウトで置き換えてください。
+  未使用のオプションを削除し、選択した構造を実際のパス(例: apps/admin, packages/something)で展開します。
+  提供される計画にはオプションラベルを含めないでください。
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+# [未使用の場合は削除] Option 1: Single project (DEFAULT)
 src/
 ├── models/
 ├── services/
@@ -68,7 +75,7 @@ tests/
 ├── integration/
 └── unit/
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+# [未使用の場合は削除] Option 2: Web application ("frontend" + "backend" 検出時)
 backend/
 ├── src/
 │   ├── models/
@@ -83,20 +90,19 @@ frontend/
 │   └── services/
 └── tests/
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+# [未使用の場合は削除] Option 3: Mobile + API ("iOS/Android" 検出時)
 api/
-└── [same as backend above]
+└── [上記のbackendと同じ]
 
 ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+└── [プラットフォーム固有の構造: 機能モジュール, UIフロー, プラットフォームテスト]
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**構造の決定**: [選択した構造を文書化し、上記でキャプチャした実際のディレクトリを参照]
 
-## Complexity Tracking
+## 複雑さの追跡
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+> **Constitution Check に正当化が必要な違反がある場合のみ記入**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|

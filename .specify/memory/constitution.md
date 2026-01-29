@@ -1,50 +1,153 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version: NEW → 1.0.0 (Initial constitution)
+- Modified principles: N/A (new constitution)
+- Added sections: 全セクション新規作成
+- Removed sections: N/A
+- Templates requiring updates:
+  ✅ plan-template.md (Constitution Check セクション参照)
+  ✅ spec-template.md (要件とテスト基準に準拠)
+  ✅ tasks-template.md (テスト優先原則に準拠)
+- Follow-up TODOs: なし
+-->
 
-## Core Principles
+# Rust PlantUML Tool Constitution
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+## 核心原則
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### I. シンプルさ優先 (NON-NEGOTIABLE)
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**原則**:
+- すべての機能は最小限の依存関係で実装しなければならない
+- 標準ライブラリを優先し、外部クレートは明確な理由がある場合のみ追加する
+- 複雑な抽象化よりも明示的で理解しやすいコードを選択する
+- YAGNI (You Aren't Gonna Need It) 原則を厳格に適用する
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**根拠**: 
+依存関係の増加はメンテナンスコスト、ビルド時間、セキュリティリスクを増大させる。
+Rust の強力な型システムと標準ライブラリにより、多くの場合外部依存なしで十分な機能を実現できる。
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### II. テスト優先開発 (NON-NEGOTIABLE)
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**原則**:
+- すべての機能実装前にテストを記述しなければならない
+- Red-Green-Refactor サイクルを厳格に遵守する
+- テストは以下の順序で記述される:
+  1. 契約テスト (入出力の境界を検証)
+  2. ユニットテスト (個別関数/構造体の動作を検証)
+  3. 統合テスト (コンポーネント間の連携を検証)
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**根拠**:
+テスト優先により設計の質が向上し、リグレッションを防止できる。
+特に PlantUML パーサーのような複雑なテキスト処理では、予期しない入力への対応が重要である。
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### III. コード品質基準
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**原則**:
+- `cargo clippy` の警告をゼロに維持しなければならない
+- `cargo fmt` による一貫したフォーマットを使用しなければならない
+- 公開 API にはすべて Rustdoc コメントを記述しなければならない
+- 複雑度の高い関数 (cyclomatic complexity > 10) は分割しなければならない
+- `unsafe` の使用は明示的に正当化し、代替案を文書化しなければならない
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+**根拠**:
+一貫したコード品質により、長期的なメンテナンス性が向上する。
+Rust の強力な静的解析ツールを活用することで、多くのバグを開発段階で検出できる。
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+### IV. パフォーマンス要件
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**原則**:
+- PlantUML ファイルのパース時間は 1000 行あたり 100ms 以内でなければならない
+- メモリ使用量はファイルサイズの 3倍を超えてはならない
+- 大規模ファイル (10,000 行以上) のストリーミング処理をサポートしなければならない
+- ベンチマークテストを継続的に実行し、パフォーマンス劣化を検出しなければならない
+
+**根拠**:
+開発者のワークフローを妨げないため、即座のフィードバックが重要である。
+PlantUML ファイルは大規模になる可能性があるため、効率的な処理が必須である。
+
+### V. ユーザーエクスペリエンスの一貫性
+
+**原則**:
+- すべてのエラーメッセージは以下の形式を守る:
+  - 何が起きたか (問題の説明)
+  - なぜ起きたか (根本原因)
+  - どう解決するか (具体的な次のステップ)
+- CLI の出力は人間が読みやすい形式と JSON 形式の両方をサポートしなければならない
+- 進行状況インジケーターは 1秒以上かかる処理に必須である
+- ヘルプメッセージには具体的な使用例を含めなければならない
+
+**根拠**:
+優れた開発者体験により、ツールの採用率と生産性が向上する。
+明確なエラーメッセージは問題解決の時間を大幅に短縮する。
+
+### VI. バージョニングと後方互換性
+
+**原則**:
+- セマンティックバージョニング (MAJOR.MINOR.PATCH) を厳格に適用する
+- MAJOR: 後方互換性を破る変更
+- MINOR: 後方互換性を保つ機能追加
+- PATCH: バグフィックスのみ
+- 破壊的変更は最低 2つの MINOR バージョンで非推奨警告を表示しなければならない
+- 公開 API の変更は CHANGELOG.md に詳細を記載しなければならない
+
+**根拠**:
+予測可能なバージョニングにより、ユーザーは安心してアップグレードできる。
+段階的な移行パスを提供することで、エコシステム全体への影響を最小化する。
+
+## 開発ワークフロー
+
+### コードレビュー要件
+
+- すべての変更は Pull Request を通じて行う
+- 最低 1名のレビュー承認が必要
+- CI パイプラインのすべてのチェックが合格していなければマージできない
+- レビューでは以下を確認する:
+  - テストカバレッジが 80% 以上
+  - ドキュメントの更新
+  - パフォーマンスへの影響
+  - エラーハンドリングの適切性
+
+### テストゲート
+
+**Tier 1 (必須)**: すべてのコミットで実行
+- `cargo test` - すべてのユニットテスト・統合テスト
+- `cargo clippy` - Lint チェック
+- `cargo fmt --check` - フォーマットチェック
+
+**Tier 2 (PR)**: Pull Request で実行
+- `cargo test --release` - リリースモードでのテスト
+- `cargo bench` - パフォーマンスベンチマーク (前回比で 10% 以上の劣化は警告)
+- `cargo doc --no-deps` - ドキュメント生成チェック
+
+**Tier 3 (リリース前)**: リリース前に実行
+- 大規模ファイルでの統合テスト
+- メモリリークチェック
+- クロスプラットフォーム動作確認 (Windows, macOS, Linux)
+
+### 依存関係管理
+
+**新規依存関係の追加基準**:
+1. 標準ライブラリで実現不可能であることを証明する
+2. クレートのメンテナンス状態を確認 (過去 6ヶ月以内の更新)
+3. セキュリティ監査の実施 (`cargo audit`)
+4. ライセンス互換性の確認
+5. バイナリサイズへの影響を測定 (10% 増加以下が目安)
+
+**禁止される依存関係**:
+- アクティブなセキュリティ脆弱性を持つクレート
+- 2年以上メンテナンスされていないクレート
+- 同等の機能を持つ複数のクレート (重複を避ける)
+
+## ガバナンス
+
+- この Constitution はすべての開発プラクティスに優先する
+- 原則の修正は以下を要求する:
+  - 修正理由の文書化
+  - 影響を受けるコード/テンプレートの特定
+  - チーム全体での合意
+  - 移行計画の策定
+- 原則違反は複雑さ追跡テーブルで正当化しなければならない
+- 継続的な違反はリファクタリングの対象とする
+
+**Version**: 1.0.0 | **Ratified**: 2025-12-08 | **Last Amended**: 2025-12-08
