@@ -233,7 +233,7 @@ impl StorageSlot {
     
     /// Validate slot number
     pub fn validate_slot_number(slot_number: u8) -> Result<(), StorageError> {
-        if slot_number < 1 || slot_number > Self::MAX_SLOTS {
+        if !(1..=Self::MAX_SLOTS).contains(&slot_number) {
             return Err(StorageError::InvalidSlotNumber(slot_number));
         }
         Ok(())
