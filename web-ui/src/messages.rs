@@ -50,7 +50,7 @@ pub fn get_message_from_result(result: &ProcessResult) -> String {
             }
             "データを削除しました".to_string()
         }
-        
+
         // バリデーションエラー (WARNING)
         ErrorCode::ValidationEmpty => "PlantUMLソースを入力してください".to_string(),
         ErrorCode::ValidationTextLimit => {
@@ -72,7 +72,7 @@ pub fn get_message_from_result(result: &ProcessResult) -> String {
         ErrorCode::StorageSlotLimit => {
             "一時保存上限に達しています。既存のスロットを削除してから保存してください".to_string()
         }
-        
+
         // 処理エラー (ERROR)
         ErrorCode::SizeLimit => {
             "画像サイズが上限を超えています。'scale'でサイズを縮小するか、図を分割してください".to_string()
@@ -86,7 +86,7 @@ pub fn get_message_from_result(result: &ProcessResult) -> String {
         ErrorCode::ExportError => {
             "ファイルのエクスポートに失敗しました。再度お試しください".to_string()
         }
-        
+
         // サーバー・ネットワークエラー (ERROR)
         ErrorCode::ServerError => {
             "サーバーが応答していません。時間をおいて再度接続を試すか管理者に問い合わせてください".to_string()
@@ -97,7 +97,7 @@ pub fn get_message_from_result(result: &ProcessResult) -> String {
         ErrorCode::NetworkError => {
             "ネットワーク接続に失敗しました。インターネット接続をご確認ください".to_string()
         }
-        
+
         // ストレージエラー (ERROR)
         ErrorCode::StorageWriteError => {
             "ローカルストレージへの保存に失敗しました。ブラウザの設定をご確認ください".to_string()
