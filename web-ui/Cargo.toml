@@ -1,0 +1,30 @@
+[package]
+name = "plantuml-editor-web-ui"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+plantuml-editor-core = { path = "../core", default-features = false }
+plantuml-editor-api-client = { path = "../api-client" }
+
+yew = { workspace = true }
+gloo-storage = { workspace = true }
+gloo-timers = { workspace = true }
+wasm-bindgen = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlTextAreaElement", "HtmlAnchorElement", "Blob", "BlobPropertyBag", "Url"] }
+js-sys = "0.3"
+chrono = { workspace = true, features = ["wasmbind"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+base64 = { workspace = true }
+urlencoding = "2.1"
+getrandom = { version = "0.2", features = ["js"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"

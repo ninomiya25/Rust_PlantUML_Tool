@@ -1,0 +1,352 @@
+/* PlantUML Editor Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    background-color: #f5f5f5;
+}
+
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container > :not(header) {
+    display: flex;
+    flex: 1;
+}
+
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.sidebar {
+    width: 300px;
+    background: white;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+}
+
+.editor-section,
+.preview-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-container,
+.preview-container {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-container h2,
+.preview-container h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.editor-textarea {
+    flex: 1;
+    width: 100%;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 400px;
+}
+
+.editor-textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.preview-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fafafa;
+    padding: 1rem;
+    min-height: 400px;
+}
+
+.preview-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.loading {
+    color: #3498db;
+    font-size: 1.1rem;
+}
+
+.error {
+    color: #e74c3c;
+    padding: 1rem;
+    background-color: #fadbd8;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.placeholder {
+    color: #95a5a6;
+    font-size: 1.1rem;
+}
+
+.action-buttons {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.save-button-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.save-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #9b59b6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-btn:hover:not(:disabled) {
+    background-color: #8e44ad;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.save-success {
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.save-error {
+    color: #e74c3c;
+    font-weight: 500;
+}
+
+.slot-info {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.export-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.export-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.export-png {
+    background-color: #3498db;
+    color: white;
+}
+
+.export-png:hover:not(:disabled) {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.export-svg {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.export-svg:hover:not(:disabled) {
+    background-color: #27ae60;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.slot-list-container {
+    padding: 1rem;
+}
+
+.slot-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.slot-list-header h3 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.toggle-btn {
+    padding: 0.5rem 1rem;
+    background: #ecf0f1;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.toggle-btn:hover {
+    background: #bdc3c7;
+}
+
+.slot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.slot-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.slot-header {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.slot-number {
+    font-weight: bold;
+    color: #3498db;
+}
+
+.slot-title {
+    flex: 1;
+    font-weight: 500;
+}
+
+.slot-time {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+.slot-preview {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-bottom: 0.75rem;
+    white-space: pre-wrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.slot-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.slot-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.load-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.load-btn:hover {
+    background-color: #2980b9;
+}
+
+.delete-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}
+
+.slot-empty {
+    text-align: center;
+    color: #95a5a6;
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    main {
+        flex-direction: column;
+    }
+    
+    .editor-textarea {
+        min-height: 300px;
+    }
+    
+    .preview-content {
+        min-height: 300px;
+    }
+}
