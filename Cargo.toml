@@ -6,6 +6,7 @@ members = [
     "api-client",
     "web-ui",
     "browser-app",
+    "storageservice",
 ]
 
 [workspace.package]
