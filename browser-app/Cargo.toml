@@ -1,0 +1,15 @@
+[package]
+name = "plantuml-editor-browser-app"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "plantuml_editor_browser_app"
+path = "src/main.rs"
+
+[dependencies]
+plantuml-editor-web-ui = { path = "../web-ui" }
+yew = { workspace = true }
+wasm-bindgen = { workspace = true }

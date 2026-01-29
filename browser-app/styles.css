@@ -1,0 +1,407 @@
+/* PlantUML Editor Styles - モックHTMLベース */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    display: flex;
+    background-color: #f5f5f5;
+}
+
+/* アプリケーション全体のコンテナ */
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+/* サイドバー（保存一覧表示） */
+.sidebar {
+    width: 200px;
+    background-color: #e9ecef;
+    border-right: 1px solid #dee2e6;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+    width: 40px;
+}
+
+/* サイドバーヘッダー（クリックで開閉） */
+.sidebar-header {
+    padding: 10px;
+    background-color: #dee2e6;
+    border-bottom: 1px solid #ced4da;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+}
+
+.sidebar-header:hover {
+    background-color: #ced4da;
+}
+
+.sidebar-header h3 {
+    font-size: 14px;
+    color: #495057;
+    margin: 0;
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-header h3 {
+    opacity: 0;
+}
+
+.sidebar-toggle {
+    font-size: 12px;
+    color: #495057;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+    transform: rotate(180deg);
+}
+
+/* サイドバーコンテンツ */
+.sidebar-content {
+    padding: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* メインコンテンツエリア */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 処理メッセージ */
+.message-area {
+    height: 30px;
+    padding: 5px 15px;
+    background-color: white;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+}
+
+.message-text {
+    font-size: 12px;
+    color: #28a745;
+}
+
+.message-text.error {
+    color: #dc3545;
+}
+
+.message-text.warning {
+    color: #fd7e14;
+}
+
+/* エディタとプレビューエリア */
+.editor-preview-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* エディタエリア */
+.editor-area {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #dee2e6;
+}
+
+.editor-header {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.editor-textarea {
+    flex: 1;
+    border: none;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+}
+
+.editor-actions {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.save-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+    background-color: #218838;
+}
+
+/* プレビューエリア */
+.preview-area {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.diagram-display {
+    flex: 1;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-style: italic;
+    overflow: auto;
+    padding: 1rem;
+}
+
+.diagram-image {
+    max-width: 100%;
+    max-height: 100%;
+    border: 1px solid #dee2e6;
+}
+
+/* エクスポートボタン */
+.export-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.export-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.export-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.export-btn:not(:disabled):hover {
+    background-color: #0056b3;
+}
+
+.export-options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 150px;
+    margin-top: 2px;
+}
+
+.export-dropdown:hover .export-options,
+.export-dropdown.open .export-options {
+    display: block;
+}
+
+.export-option {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.export-option:hover {
+    background-color: #f8f9fa;
+}
+
+.export-png {
+    background-color: #3498db;
+    color: white;
+}
+
+.export-svg {
+    background-color: #2ecc71;
+    color: white;
+}
+
+/* スロットリスト */
+.slot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.save-slot {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    background-color: white;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    position: relative;
+    min-height: 40px;
+    text-align: left;
+}
+
+.save-slot:hover {
+    background-color: #e3f2fd;
+}
+
+.save-slot.selected {
+    background-color: #2196f3;
+    color: white;
+}
+
+.save-slot.empty {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* スロットのテキスト部分 */
+.slot-text {
+    display: block;
+    padding-right: 50px;
+    text-align: left;
+}
+
+/* スロット操作ボタン */
+.slot-actions {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    display: flex;
+    gap: 2px;
+}
+
+.slot-button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.reload-button {
+    background-color: #007bff;
+    color: white;
+}
+
+.reload-button:hover {
+    background-color: #0056b3;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.save-slot.selected .reload-button {
+    background-color: #0056b3;
+}
+
+.save-slot.selected .delete-button {
+    background-color: #c82333;
+}
+
+/* ローディング・エラー表示 */
+.loading {
+    color: #007bff;
+    font-size: 1rem;
+}
+
+.error {
+    color: #dc3545;
+    padding: 1rem;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 1rem;
+}
+
+.placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .sidebar.collapsed {
+        width: 0;
+    }
+    
+    .editor-preview-container {
+        flex-direction: column;
+    }
+    
+    .editor-area,
+    .preview-area {
+        width: 100%;
+    }
+}
+
+
