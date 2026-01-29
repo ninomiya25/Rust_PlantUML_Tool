@@ -1,0 +1,57 @@
+[workspace]
+resolver = "2"
+members = [
+    "core",
+    "api-server",
+    "api-client",
+    "web-ui",
+    "browser-app",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Organization"]
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# UUID
+uuid = { version = "1.6", features = ["v4", "serde", "js"] }
+
+# Time
+chrono = { version = "0.4", default-features = false, features = ["serde", "clock", "std"] }
+
+# HTTP client (backend uses rustls-tls, frontend uses browser fetch)
+reqwest = { version = "0.11", default-features = false }
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-appender = "0.2"
+
+# Web framework (backend)
+axum = { version = "0.7", features = ["macros"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "limit"] }
+
+# Web framework (frontend)
+yew = { version = "0.21", features = ["csr"] }
+gloo-storage = "0.3"
+gloo-timers = { version = "0.3", features = ["futures"] }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement"] }
+
+# Base64 encoding
+base64 = "0.21"
