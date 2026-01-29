@@ -9,7 +9,6 @@ use yew::prelude::*;
 pub mod components;
 pub mod errors;
 pub mod messages;
-pub mod model;
 
 // Re-export components
 pub use components::*;
