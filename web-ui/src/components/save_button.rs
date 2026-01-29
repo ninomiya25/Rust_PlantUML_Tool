@@ -1,7 +1,7 @@
 // Save button component
 
-use yew::prelude::*;
 use plantuml_editor_core::StorageError;
+use yew::prelude::*;
 
 /// Validation result for save operation
 pub enum SaveValidationError {
@@ -23,42 +23,42 @@ pub fn save_button(props: &SaveButtonProps) -> Html {
         let plantuml_text = props.plantuml_text.clone();
         let on_save = props.on_save.clone();
         let on_error = props.on_error.clone();
-        
+
         Callback::from(move |_| {
-           use plantuml_editor_storageservice::{StorageService, LocalStorageBackend};
-        
-           // Validate PlantUML text before saving
-           // Rule 1: Not empty or whitespace only
-           if plantuml_text.trim().is_empty() {
-               on_error.emit(SaveValidationError::EmptyContent);
-               return;
-           }
-           
-           // Rule 2: Max 24,000 characters
-           const MAX_CHARS: usize = 24_000;
-           if plantuml_text.len() > MAX_CHARS {
-               on_error.emit(SaveValidationError::ContentTooLarge(plantuml_text.len()));
-               return;
-           }
-           
-           let service = StorageService::new(LocalStorageBackend::new());
-        
-            // 空きスロットを探す
-        for slot_num in 1..=10 {
-            if let Ok(None) = service.load_from_slot(slot_num) {
-                // このスロットは空いている
-                on_save.emit(slot_num);
+            use plantuml_editor_storageservice::{LocalStorageBackend, StorageService};
+
+            // Validate PlantUML text before saving
+            // Rule 1: Not empty or whitespace only
+            if plantuml_text.trim().is_empty() {
+                on_error.emit(SaveValidationError::EmptyContent);
                 return;
             }
-        }
-        
-        // 全スロット埋まっている場合 - エラーを通知
-        on_error.emit(SaveValidationError::StorageError(StorageError::SlotsFull));
+
+            // Rule 2: Max 24,000 characters
+            const MAX_CHARS: usize = 24_000;
+            if plantuml_text.len() > MAX_CHARS {
+                on_error.emit(SaveValidationError::ContentTooLarge(plantuml_text.len()));
+                return;
+            }
+
+            let service = StorageService::new(LocalStorageBackend::new());
+
+            // 空きスロットを探す
+            for slot_num in 1..=10 {
+                if let Ok(None) = service.load_from_slot(slot_num) {
+                    // このスロットは空いている
+                    on_save.emit(slot_num);
+                    return;
+                }
+            }
+
+            // 全スロット埋まっている場合 - エラーを通知
+            on_error.emit(SaveValidationError::StorageError(StorageError::SlotsFull));
         })
     };
-    
+
     html! {
-        <button 
+        <button
             class="save-btn"
             onclick={on_click}
         >

@@ -1,7 +1,7 @@
 // Export buttons component for downloading diagrams
 
-use yew::prelude::*;
 use plantuml_editor_core::ImageFormat;
+use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct ExportButtonsProps {
@@ -11,14 +11,14 @@ pub struct ExportButtonsProps {
 #[function_component(ExportButtons)]
 pub fn export_buttons(props: &ExportButtonsProps) -> Html {
     let dropdown_open = use_state(|| false);
-    
+
     let toggle_dropdown = {
         let dropdown_open = dropdown_open.clone();
         Callback::from(move |_| {
             dropdown_open.set(!*dropdown_open);
         })
     };
-    
+
     let on_export_png = {
         let on_export = props.on_export.clone();
         let dropdown_open = dropdown_open.clone();
@@ -27,7 +27,7 @@ pub fn export_buttons(props: &ExportButtonsProps) -> Html {
             dropdown_open.set(false);
         })
     };
-    
+
     let on_export_svg = {
         let on_export = props.on_export.clone();
         let dropdown_open = dropdown_open.clone();
@@ -36,7 +36,7 @@ pub fn export_buttons(props: &ExportButtonsProps) -> Html {
             dropdown_open.set(false);
         })
     };
-    
+
     html! {
         <div class={classes!("export-dropdown", dropdown_open.then(|| "open"))}>
             <button class="export-btn" onclick={toggle_dropdown}>
