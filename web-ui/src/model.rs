@@ -1,5 +1,3 @@
 // Web UI model module
-
-pub mod storage;
-
-pub use storage::{StorageService, SlotInfo};
+//
+// Storage functionality has been moved to the storageservice crate

@@ -1,7 +1,7 @@
 // Slot list component for loading saved documents
 
 use yew::prelude::*;
-use crate::model::StorageService;
+use plantuml_editor_storageservice::{StorageService, LocalStorageBackend};
 
 #[derive(Properties, PartialEq)]
 pub struct SlotListProps {
@@ -11,19 +11,19 @@ pub struct SlotListProps {
 
 #[function_component(SlotList)]
 pub fn slot_list(props: &SlotListProps) -> Html {
-    let service = StorageService::new();
+    let service = StorageService::new(LocalStorageBackend::new());
     let slots = use_state(|| service.list_slots());
     
     let refresh_slots = {
         let slots = slots.clone();
         Callback::from(move |_| {
-            let service = StorageService::new();
+            let service = StorageService::new(LocalStorageBackend::new());
             slots.set(service.list_slots());
         })
     };
     
     let render_slot = |slot_num: usize| {
-        let service = StorageService::new();
+        let service = StorageService::new(LocalStorageBackend::new());
         let slot_data = service.load_from_slot(slot_num).ok().flatten();
         
         let on_load = props.on_load.clone();

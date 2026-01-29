@@ -25,7 +25,7 @@ pub fn save_button(props: &SaveButtonProps) -> Html {
         let on_error = props.on_error.clone();
         
         Callback::from(move |_| {
-           use crate::model::storage::StorageService;
+           use plantuml_editor_storageservice::{StorageService, LocalStorageBackend};
         
            // Validate PlantUML text before saving
            // Rule 1: Not empty or whitespace only
@@ -41,7 +41,7 @@ pub fn save_button(props: &SaveButtonProps) -> Html {
                return;
            }
            
-           let service = StorageService::new();
+           let service = StorageService::new(LocalStorageBackend::new());
         
             // 空きスロットを探す
         for slot_num in 1..=10 {

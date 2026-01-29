@@ -187,10 +187,10 @@ pub fn app() -> Html {
         let message_level = message_level.clone();
         
         Callback::from(move |slot: usize| {
-            use crate::model::storage::{StorageService, storage_error_to_result, storage_success_result};
+            use plantuml_editor_storageservice::{StorageService, LocalStorageBackend, storage_error_to_result, storage_success_result};
             use plantuml_editor_core::ErrorCode;
             
-            let service = StorageService::new();
+            let service = StorageService::new(LocalStorageBackend::new());
             let result = match service.save_to_slot(slot, &plantuml_text) {
                 Ok(_) => storage_success_result(ErrorCode::SaveSuccess, slot as u8),
                 Err(e) => storage_error_to_result(&e, Some(slot as u8)),
@@ -207,7 +207,7 @@ pub fn app() -> Html {
         let message_level = message_level.clone();
         
         Callback::from(move |error: SaveValidationError| {
-            use crate::model::storage::storage_error_to_result;
+            use plantuml_editor_storageservice::storage_error_to_result;
             use plantuml_editor_core::{ProcessResult, ErrorCode, StatusLevel};
             
             let result = match error {
@@ -246,10 +246,10 @@ pub fn app() -> Html {
         let message_level = message_level.clone();
         
         Callback::from(move |slot: usize| {
-            use crate::model::storage::{StorageService, storage_error_to_result, storage_success_result};
+            use plantuml_editor_storageservice::{StorageService, LocalStorageBackend, storage_error_to_result, storage_success_result};
             use plantuml_editor_core::ErrorCode;
             
-            let service = StorageService::new();
+            let service = StorageService::new(LocalStorageBackend::new());
             let result = match service.load_from_slot(slot) {
                 Ok(Some(text)) => {
                     plantuml_text.set(text);
@@ -277,10 +277,10 @@ pub fn app() -> Html {
         let message_level = message_level.clone();
         
         Callback::from(move |slot: usize| {
-            use crate::model::storage::{StorageService, storage_error_to_result, storage_success_result};
+            use plantuml_editor_storageservice::{StorageService, LocalStorageBackend, storage_error_to_result, storage_success_result};
             use plantuml_editor_core::ErrorCode;
             
-            let service = StorageService::new();
+            let service = StorageService::new(LocalStorageBackend::new());
             let result = match service.delete_slot(slot) {
                 Ok(_) => storage_success_result(ErrorCode::DeleteSuccess, slot as u8),
                 Err(e) => storage_error_to_result(&e, Some(slot as u8)),

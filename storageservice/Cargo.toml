@@ -1,0 +1,17 @@
+[package]
+name = "plantuml-editor-storageservice"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+plantuml-editor-core = { path = "../core", default-features = false }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+
+# WASM-specific dependencies
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+gloo-storage = { workspace = true }

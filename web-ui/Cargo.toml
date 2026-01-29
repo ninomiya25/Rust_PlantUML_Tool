@@ -11,9 +11,9 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 plantuml-editor-core = { path = "../core", default-features = false }
 plantuml-editor-api-client = { path = "../api-client" }
+plantuml-editor-storageservice = { path = "../storageservice" }
 
 yew = { workspace = true }
-gloo-storage = { workspace = true }
 gloo-timers = { workspace = true }
 wasm-bindgen = { workspace = true }
 wasm-bindgen-futures = { workspace = true }
