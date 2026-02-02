@@ -6,9 +6,10 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use plantuml_editor_core::{
-    ConvertRequest, ConvertResponse, PlantUmlClient,
+    ConvertRequest, ConvertResponse,
     ErrorCode, StatusLevel,
 };
+use plantuml_client::PlantUmlClient;
 use serde_json::json;
 
 /// GET /api/v1/health - Health check endpoint

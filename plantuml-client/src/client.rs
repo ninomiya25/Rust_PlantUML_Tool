@@ -1,7 +1,7 @@
 // PlantUML HTTP client
-// Only compiled when "client" feature is enabled
 
-use crate::models::{DiagramImage, DocumentId, GenerationResult, ImageFormat};
+use crate::errors::ClientError;
+use plantuml_editor_core::{DiagramImage, DocumentId, GenerationResult, ImageFormat};
 use std::time::Duration;
 use plantuml_encoding::encode_plantuml_deflate;
 
@@ -9,25 +9,6 @@ use plantuml_encoding::encode_plantuml_deflate;
 pub struct PlantUmlClient {
     client: reqwest::Client,
     base_url: String,
-}
-
-/// Client errors
-#[derive(Debug, thiserror::Error)]
-pub enum ClientError {
-    #[error("ネットワークエラー: {0}")]
-    Network(#[from] reqwest::Error),
-    
-    #[error("タイムアウト: PlantUMLサーバーが応答しません")]
-    Timeout,
-    
-    #[error("PlantUMLサーバーエラー: {0}")]
-    ServerError(String),
-    
-    #[error("無効なレスポンス形式")]
-    InvalidResponse,
-    
-    #[error("エンコードエラー: {0}")]
-    EncodingError(String),
 }
 
 impl PlantUmlClient {
@@ -140,4 +121,3 @@ mod tests {
     
     // Note: Integration tests with mock server will be in tests/client_test.rs
 }
-
