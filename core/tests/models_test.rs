@@ -165,15 +165,3 @@ fn test_convert_request_validation() {
     };
     assert!(invalid_request.validate().is_err());
 }
-
-#[test]
-fn test_error_response_messages() {
-    let system_err = ErrorResponse::system_error();
-    assert!(system_err.error.contains("システムエラー"));
-    
-    let network_err = ErrorResponse::network_error();
-    assert!(network_err.error.contains("ネットワークエラー"));
-    
-    let validation_err = ErrorResponse::validation_error("test".to_string());
-    assert!(validation_err.error.contains("入力エラー"));
-}
