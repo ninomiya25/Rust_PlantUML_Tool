@@ -2,7 +2,7 @@
 //
 // This crate provides storage abstraction with pluggable backends
 
-use plantuml_editor_core::{StorageError, ProcessResult, ErrorCode, StatusLevel};
+use plantuml_editor_core::{StorageError, ProcessResult, ErrorCode};
 use serde::{Deserialize, Serialize};
 
 // Re-export local storage backend
@@ -55,30 +55,29 @@ impl<B: StorageBackend> StorageService<B> {
 
 /// Convert StorageError to ProcessResult
 pub fn storage_error_to_result(error: &StorageError, _slot_number: Option<u8>) -> ProcessResult {
-    let (level, code, context) = match error {
-        StorageError::InvalidSlotNumber(_) | StorageError::SlotEmpty(_) => {
-            (StatusLevel::Warning, ErrorCode::StorageReadError, None)
+    let code = match error {
+        StorageError::InvalidSlotNumber(slot) | StorageError::SlotEmpty(slot) => {
+            ErrorCode::StorageReadError {
+                reason: format!("スロット{}は無効または空です", slot),
+            }
         }
         StorageError::SlotsFull => {
-            (StatusLevel::Warning, ErrorCode::StorageSlotLimit, None)
+            ErrorCode::StorageSlotLimit {
+                max_slots: 10,
+            }
         }
         StorageError::QuotaExceeded => {
-            (StatusLevel::Warning, ErrorCode::StorageInputLimit, Some(serde_json::json!({
-                "maxChars": 24000
-            })))
+            ErrorCode::StorageInputLimit {
+                actual: 0, // Not available in this context
+                max: 24000,
+            }
         }
     };
     
-    ProcessResult { level, code, context }
+    ProcessResult::error(code)
 }
 
 /// Create success ProcessResult for storage operations
-pub fn storage_success_result(code: ErrorCode, slot_number: u8) -> ProcessResult {
-    ProcessResult {
-        level: StatusLevel::Info,
-        code,
-        context: Some(serde_json::json!({
-            "slotNumber": slot_number
-        })),
-    }
+pub fn storage_success_result(code: ErrorCode, _slot_number: u8) -> ProcessResult {
+    ProcessResult::success(code)
 }

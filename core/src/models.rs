@@ -77,41 +77,188 @@ pub enum StatusLevel {
     Error,
 }
 
-/// Error codes for processing results
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Error codes for processing results (Algebraic Data Type)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
 pub enum ErrorCode {
-    // 正常完了
+    // 正常完了 (INFO)
     ConversionOk,
+    ExportOk,
+    
+    // データ付き成功メッセージ (INFO)
+    SaveSuccess { 
+        slot_number: u8 
+    },
+    LoadSuccess { 
+        slot_number: u8 
+    },
+    DeleteSuccess { 
+        slot_number: u8 
+    },
     
     // バリデーションエラー (WARNING)
     ValidationEmpty,
-    ValidationTextLimit,
-    
-    // 処理エラー (ERROR)
-    SizeLimit,
-    EncodingError,
-    ParseError,
-    
-    // サーバー・ネットワークエラー (ERROR)
-    ServerError,
-    TimeoutError,
-    NetworkError,
-    
-    // エクスポートエラー (ERROR)
-    ExportError,
+    ValidationTextLimit { 
+        actual: usize, 
+        max: usize 
+    },
     
     // ストレージエラー (WARNING/ERROR)
-    StorageInputLimit,
-    StorageSlotLimit,
-    StorageWriteError,
-    StorageReadError,
-    StorageDeleteError,
+    StorageInputLimit { 
+        actual: usize, 
+        max: usize 
+    },
+    StorageSlotLimit { 
+        max_slots: usize 
+    },
+    StorageWriteError { 
+        reason: String 
+    },
+    StorageReadError { 
+        reason: String 
+    },
+    StorageDeleteError { 
+        reason: String 
+    },
     
-    // 成功メッセージ (INFO)
-    ExportOk,
-    SaveSuccess,
-    LoadSuccess,
-    DeleteSuccess,
+    // 処理エラー (ERROR)
+    SizeLimit { 
+        actual_bytes: usize, 
+        max_bytes: usize 
+    },
+    EncodingError { 
+        encoding: String 
+    },
+    ParseError { 
+        line: Option<usize> 
+    },
+    ExportError { 
+        format: String 
+    },
+    
+    // サーバー・ネットワークエラー (ERROR)
+    ServerError { 
+        message: String 
+    },
+    TimeoutError { 
+        duration_ms: u64 
+    },
+    NetworkError { 
+        endpoint: String 
+    },
+}
+
+impl ErrorCode {
+    /// Get user-friendly message from ErrorCode
+    pub fn to_message(&self) -> String {
+        match self {
+            // 成功系 (INFO)
+            Self::ConversionOk => "図が正常に生成されました".to_string(),
+            Self::ExportOk => "図が正常にエクスポートされました".to_string(),
+            
+            Self::SaveSuccess { slot_number } => {
+                format!("PlantUMLソースをスロット{}に保存しました", slot_number)
+            }
+            Self::LoadSuccess { slot_number } => {
+                format!("スロット{}からPlantUMLソースを読み込みました", slot_number)
+            }
+            Self::DeleteSuccess { slot_number } => {
+                format!("スロット{}のデータを削除しました", slot_number)
+            }
+            
+            // バリデーションエラー (WARNING)
+            Self::ValidationEmpty => "PlantUMLソースを入力してください".to_string(),
+            Self::ValidationTextLimit { actual, max } => {
+                format!(
+                    "PlantUMLソースが長すぎます。文字数を{}文字以内に減らしてください（現在: {}文字）",
+                    max, actual
+                )
+            }
+            
+            // ストレージエラー (WARNING/ERROR)
+            Self::StorageInputLimit { actual, max } => {
+                format!(
+                    "保存する内容の文字数が上限({}文字)を超えています。内容を短縮してください（現在: {}文字）",
+                    max, actual
+                )
+            }
+            Self::StorageSlotLimit { max_slots } => {
+                format!(
+                    "一時保存上限に達しています（最大{}個）。既存のスロットを削除してから保存してください",
+                    max_slots
+                )
+            }
+            Self::StorageWriteError { reason } => {
+                format!("ローカルストレージへの保存に失敗しました。{}", reason)
+            }
+            Self::StorageReadError { reason } => {
+                format!("ローカルストレージからの読み込みに失敗しました。{}", reason)
+            }
+            Self::StorageDeleteError { reason } => {
+                format!("ローカルストレージのデータ削除に失敗しました。{}", reason)
+            }
+            
+            // 処理エラー (ERROR)
+            Self::SizeLimit { actual_bytes, max_bytes } => {
+                format!(
+                    "画像サイズが上限を超えています（現在: {} bytes、上限: {} bytes）。'scale'でサイズを縮小するか、図を分割してください",
+                    actual_bytes, max_bytes
+                )
+            }
+            Self::EncodingError { encoding } => {
+                format!(
+                    "PlantUMLソースの変換に失敗しました（エンコーディング: {}）。文字コードや特殊文字が含まれていないかご確認ください",
+                    encoding
+                )
+            }
+            Self::ParseError { line } => {
+                if let Some(line_num) = line {
+                    format!("PlantUMLの処理中にエラーが発生しました（行: {}）。管理者へお問い合わせください", line_num)
+                } else {
+                    "PlantUMLの処理中にエラーが発生しました。管理者へお問い合わせください".to_string()
+                }
+            }
+            Self::ExportError { format } => {
+                format!("ファイルのエクスポートに失敗しました（形式: {}）。再度お試しください", format)
+            }
+            
+            // サーバー・ネットワークエラー (ERROR)
+            Self::ServerError { message } => {
+                format!("サーバーエラー: {}。時間をおいて再度接続を試すか管理者に問い合わせてください", message)
+            }
+            Self::TimeoutError { duration_ms } => {
+                format!(
+                    "通信がタイムアウトしました（{}ms）。ネットワーク状況をご確認のうえ、再度お試しください",
+                    duration_ms
+                )
+            }
+            Self::NetworkError { endpoint } => {
+                format!("ネットワーク接続に失敗しました（エンドポイント: {}）。インターネット接続をご確認ください", endpoint)
+            }
+        }
+    }
+    
+    /// Get status level for this error code
+    pub fn status_level(&self) -> StatusLevel {
+        match self {
+            // INFO
+            Self::ConversionOk 
+            | Self::ExportOk 
+            | Self::SaveSuccess { .. } 
+            | Self::LoadSuccess { .. } 
+            | Self::DeleteSuccess { .. } => StatusLevel::Info,
+            
+            // WARNING
+            Self::ValidationEmpty 
+            | Self::ValidationTextLimit { .. } 
+            | Self::StorageInputLimit { .. } 
+            | Self::StorageSlotLimit { .. } 
+            | Self::SizeLimit { .. } => StatusLevel::Warning,
+            
+            // ERROR
+            _ => StatusLevel::Error,
+        }
+    }
 }
 
 /// Processing result information
@@ -120,12 +267,31 @@ pub struct ProcessResult {
     /// Status level (INFO/WARNING/ERROR)
     pub level: StatusLevel,
     
-    /// Error code
+    /// Error code (contains all necessary data)
     pub code: ErrorCode,
+}
+
+impl ProcessResult {
+    /// Create a ProcessResult with automatic status level determination
+    pub fn new(code: ErrorCode) -> Self {
+        let level = code.status_level();
+        Self { level, code }
+    }
     
-    /// Optional additional context (e.g., slot number, max length)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub context: Option<serde_json::Value>,
+    /// Create a success result
+    pub fn success(code: ErrorCode) -> Self {
+        Self::new(code)
+    }
+    
+    /// Create an error result
+    pub fn error(code: ErrorCode) -> Self {
+        Self::new(code)
+    }
+    
+    /// Get user-friendly message
+    pub fn message(&self) -> String {
+        self.code.to_message()
+    }
 }
 
 /// Generation result status
@@ -294,23 +460,15 @@ impl ConvertResponse {
     /// Create success response with image data
     pub fn success(image_data: Vec<u8>) -> Self {
         Self {
-            result: ProcessResult {
-                level: StatusLevel::Info,
-                code: ErrorCode::ConversionOk,
-                context: None,
-            },
+            result: ProcessResult::success(ErrorCode::ConversionOk),
             image_data: Some(image_data),
         }
     }
     
     /// Create error response without image data
-    pub fn error(level: StatusLevel, code: ErrorCode, context: Option<serde_json::Value>) -> Self {
+    pub fn error(code: ErrorCode) -> Self {
         Self {
-            result: ProcessResult {
-                level,
-                code,
-                context,
-            },
+            result: ProcessResult::error(code),
             image_data: None,
         }
     }

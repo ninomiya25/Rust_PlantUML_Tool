@@ -8,7 +8,6 @@ use yew::prelude::*;
 
 pub mod components;
 pub mod errors;
-pub mod messages;
 
 // Re-export components
 pub use components::*;
@@ -16,20 +15,35 @@ pub use components::*;
 /// Main application component（状態管理とイベントハンドリング）
 #[function_component(App)]
 pub fn app() -> Html {
-    use crate::messages::{get_message_class, get_message_from_result, MessageLevel};
     use plantuml_editor_api_client::{convert_plantuml, export_plantuml};
-    use plantuml_editor_core::{ImageFormat, ProcessResult};
+    use plantuml_editor_core::{ImageFormat, ProcessResult, StatusLevel};
     use wasm_bindgen_futures::spawn_local;
 
-    // Helper function to convert ProcessResult to message and level
-    fn get_message_and_level(result: &ProcessResult) -> (String, MessageLevel) {
-        let message = get_message_from_result(result);
-        let level = match result.level {
-            plantuml_editor_core::StatusLevel::Info => MessageLevel::Info,
-            plantuml_editor_core::StatusLevel::Warning => MessageLevel::Warning,
-            plantuml_editor_core::StatusLevel::Error => MessageLevel::Error,
-        };
-        (message, level)
+    /// Message level for UI display
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum MessageLevel {
+        Info,
+        Warning,
+        Error,
+    }
+
+    impl From<StatusLevel> for MessageLevel {
+        fn from(level: StatusLevel) -> Self {
+            match level {
+                StatusLevel::Info => MessageLevel::Info,
+                StatusLevel::Warning => MessageLevel::Warning,
+                StatusLevel::Error => MessageLevel::Error,
+            }
+        }
+    }
+
+    /// Get CSS class for message level
+    fn get_message_class(level: MessageLevel) -> &'static str {
+        match level {
+            MessageLevel::Info => "message-text",
+            MessageLevel::Warning => "message-text warning",
+            MessageLevel::Error => "message-text error",
+        }
     }
 
     let plantuml_text = use_state(String::new);
@@ -69,7 +83,7 @@ pub fn app() -> Html {
                                 image_data.set(Some(data_url));
 
                                 // Set success message
-                                message.set(get_message_from_result(&result));
+                                message.set(result.message());
                                 message_level.set(result.level.into());
                             }
                             Err(_) => {
@@ -83,18 +97,10 @@ pub fn app() -> Html {
                         use plantuml_editor_api_client::ApiError;
 
                         match e {
-                            ApiError::ProcessError {
-                                code,
-                                level,
-                                context,
-                            } => {
-                                let result = plantuml_editor_core::ProcessResult {
-                                    level,
-                                    code,
-                                    context,
-                                };
-                                message.set(get_message_from_result(&result));
-                                message_level.set(level.into());
+                            ApiError::ProcessError(code) => {
+                                let result = ProcessResult::error(code);
+                                message.set(result.message());
+                                message_level.set(result.level.into());
                             }
                             _ => {
                                 message.set(e.to_string());
@@ -123,9 +129,8 @@ pub fn app() -> Html {
                 match export_plantuml(text, format).await {
                     Ok((bytes, result)) => {
                         // Update message based on export result
-                        let (message_text, level) = get_message_and_level(&result);
-                        msg.set(message_text);
-                        msg_level.set(level);
+                        msg.set(result.message());
+                        msg_level.set(result.level.into());
 
                         // Download the file
                         let blob_parts = js_sys::Array::new();
@@ -166,27 +171,18 @@ pub fn app() -> Html {
                     Err(e) => {
                         // Display error message from ProcessResult if available
                         use plantuml_editor_api_client::ApiError;
-                        let (error_message, error_level) = match e {
-                            ApiError::ProcessError {
-                                code,
-                                level,
-                                context,
-                            } => {
-                                // Create ProcessResult to get user-friendly message
-                                let result = plantuml_editor_core::ProcessResult {
-                                    code,
-                                    level,
-                                    context,
-                                };
-                                get_message_and_level(&result)
+                        match e {
+                            ApiError::ProcessError(code) => {
+                                let result = ProcessResult::error(code);
+                                msg.set(result.message());
+                                msg_level.set(result.level.into());
                             }
                             _ => {
                                 // For network/server errors, display as-is
-                                (format!("エクスポートエラー: {}", e), MessageLevel::Error)
+                                msg.set(format!("エクスポートエラー: {}", e));
+                                msg_level.set(MessageLevel::Error);
                             }
-                        };
-                        msg.set(error_message);
-                        msg_level.set(error_level);
+                        }
                     }
                 }
             });
@@ -207,13 +203,12 @@ pub fn app() -> Html {
 
             let service = StorageService::new(LocalStorageBackend::new());
             let result = match service.save_to_slot(slot, &plantuml_text) {
-                Ok(_) => storage_success_result(ErrorCode::SaveSuccess, slot as u8),
+                Ok(_) => storage_success_result(ErrorCode::SaveSuccess { slot_number: slot as u8 }, slot as u8),
                 Err(e) => storage_error_to_result(&e, Some(slot as u8)),
             };
 
-            let (msg, level) = get_message_and_level(&result);
-            message.set(msg);
-            message_level.set(level);
+            message.set(result.message());
+            message_level.set(result.level.into());
         })
     };
 
@@ -222,31 +217,26 @@ pub fn app() -> Html {
         let message_level = message_level.clone();
 
         Callback::from(move |error: SaveValidationError| {
-            use plantuml_editor_core::{ErrorCode, ProcessResult, StatusLevel};
+            use plantuml_editor_core::{ErrorCode, ProcessResult};
             use plantuml_editor_storageservice::storage_error_to_result;
 
             let result = match error {
-                SaveValidationError::EmptyContent => ProcessResult {
-                    level: StatusLevel::Warning,
-                    code: ErrorCode::ValidationEmpty,
-                    context: None,
-                },
-                SaveValidationError::ContentTooLarge(actual_length) => ProcessResult {
-                    level: StatusLevel::Warning,
-                    code: ErrorCode::StorageInputLimit,
-                    context: Some(serde_json::json!({
-                        "maxChars": 24000,
-                        "actual": actual_length
-                    })),
-                },
+                SaveValidationError::EmptyContent => {
+                    ProcessResult::error(ErrorCode::ValidationEmpty)
+                }
+                SaveValidationError::ContentTooLarge(actual_length) => {
+                    ProcessResult::error(ErrorCode::StorageInputLimit {
+                        actual: actual_length,
+                        max: 24000,
+                    })
+                }
                 SaveValidationError::StorageError(storage_error) => {
                     storage_error_to_result(&storage_error, None)
                 }
             };
 
-            let (msg, level) = get_message_and_level(&result);
-            message.set(msg);
-            message_level.set(level);
+            message.set(result.message());
+            message_level.set(result.level.into());
         })
     };
 
@@ -268,19 +258,18 @@ pub fn app() -> Html {
                 Ok(Some(text)) => {
                     plantuml_text.set(text);
                     editor_key.set(*editor_key + 1);
-                    storage_success_result(ErrorCode::LoadSuccess, slot as u8)
+                    storage_success_result(ErrorCode::LoadSuccess { slot_number: slot as u8 }, slot as u8)
                 }
-                Ok(None) => ProcessResult {
-                    level: plantuml_editor_core::StatusLevel::Warning,
-                    code: ErrorCode::StorageReadError,
-                    context: None,
-                },
+                Ok(None) => {
+                    ProcessResult::error(ErrorCode::StorageReadError {
+                        reason: "スロットにデータがありません".to_string(),
+                    })
+                }
                 Err(e) => storage_error_to_result(&e, Some(slot as u8)),
             };
 
-            let (msg, level) = get_message_and_level(&result);
-            message.set(msg);
-            message_level.set(level);
+            message.set(result.message());
+            message_level.set(result.level.into());
         })
     };
 
@@ -297,13 +286,12 @@ pub fn app() -> Html {
 
             let service = StorageService::new(LocalStorageBackend::new());
             let result = match service.delete_slot(slot) {
-                Ok(_) => storage_success_result(ErrorCode::DeleteSuccess, slot as u8),
+                Ok(_) => storage_success_result(ErrorCode::DeleteSuccess { slot_number: slot as u8 }, slot as u8),
                 Err(e) => storage_error_to_result(&e, Some(slot as u8)),
             };
 
-            let (msg, level) = get_message_and_level(&result);
-            message.set(msg);
-            message_level.set(level);
+            message.set(result.message());
+            message_level.set(result.level.into());
             // Note: SlotList will automatically refresh via its internal state
         })
     };

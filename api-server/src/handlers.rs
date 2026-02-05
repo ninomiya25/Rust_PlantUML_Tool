@@ -7,7 +7,7 @@ use axum::{
 };
 use plantuml_editor_core::{
     ConvertRequest, ConvertResponse,
-    ErrorCode, StatusLevel,
+    ErrorCode,
 };
 use plantuml_client::PlantUmlClient;
 use serde_json::json;
@@ -28,11 +28,8 @@ pub async fn convert(Json(payload): Json<ConvertRequest>) -> Response {
     // Validate request
     if let Err(e) = payload.validate() {
         tracing::warn!("Validation failed: {}", e);
-        let response = ConvertResponse::error(
-            e.status_level(),
-            e.to_error_code(),
-            e.context(),
-        );
+        let error_code = e.to_error_code();
+        let response = ConvertResponse::error(error_code);
         return (StatusCode::OK, Json(response)).into_response();
     }
     
@@ -41,11 +38,10 @@ pub async fn convert(Json(payload): Json<ConvertRequest>) -> Response {
         Ok(c) => c,
         Err(e) => {
             tracing::error!("Failed to create PlantUML client: {}", e);
-            let response = ConvertResponse::error(
-                StatusLevel::Error,
-                ErrorCode::ServerError,
-                None,
-            );
+            let error_code = ErrorCode::ServerError {
+                message: e.to_string(),
+            };
+            let response = ConvertResponse::error(error_code);
             return (StatusCode::OK, Json(response)).into_response();
         }
     };
@@ -71,19 +67,15 @@ pub async fn convert(Json(payload): Json<ConvertRequest>) -> Response {
             tracing::error!("PlantUML conversion failed: {}", e);
             
             // Determine error code based on error type
-            // Only distinguish encoding errors; all other errors become ParseError
             let error_code = if e.to_string().contains("エンコードエラー") {
-                ErrorCode::EncodingError
+                ErrorCode::EncodingError {
+                    encoding: "UTF-8".to_string(),
+                }
             } else {
-                // Network, Timeout, ServerError, InvalidResponse → all become ParseError
-                ErrorCode::ParseError
+                ErrorCode::ParseError { line: None }
             };
             
-            let response = ConvertResponse::error(
-                StatusLevel::Error,
-                error_code,
-                None,
-            );
+            let response = ConvertResponse::error(error_code);
             (StatusCode::OK, Json(response)).into_response()
         }
     }
@@ -94,11 +86,8 @@ pub async fn export(Json(payload): Json<ConvertRequest>) -> Response {
     // Validate request
     if let Err(e) = payload.validate() {
         tracing::warn!("Export validation failed: {}", e);
-        let response = ConvertResponse::error(
-            e.status_level(),
-            e.to_error_code(),
-            e.context(),
-        );
+        let error_code = e.to_error_code();
+        let response = ConvertResponse::error(error_code);
         return (StatusCode::OK, Json(response)).into_response();
     }
     
@@ -107,11 +96,10 @@ pub async fn export(Json(payload): Json<ConvertRequest>) -> Response {
         Ok(c) => c,
         Err(e) => {
             tracing::error!("Failed to create PlantUML client for export: {}", e);
-            let response = ConvertResponse::error(
-                StatusLevel::Error,
-                ErrorCode::ServerError,
-                None,
-            );
+            let error_code = ErrorCode::ServerError {
+                message: e.to_string(),
+            };
+            let response = ConvertResponse::error(error_code);
             return (StatusCode::OK, Json(response)).into_response();
         }
     };
@@ -139,19 +127,21 @@ pub async fn export(Json(payload): Json<ConvertRequest>) -> Response {
             tracing::error!("PlantUML export failed: {}", e);
             
             // Determine error code based on error type
-            // Only distinguish encoding errors; all other errors become ExportError
             let error_code = if e.to_string().contains("エンコードエラー") {
-                ErrorCode::EncodingError
+                ErrorCode::EncodingError {
+                    encoding: "UTF-8".to_string(),
+                }
             } else {
-                // Network, Timeout, ServerError, InvalidResponse → all become ExportError
-                ErrorCode::ExportError
+                let format_str = match payload.format {
+                    plantuml_editor_core::ImageFormat::Png => "PNG",
+                    plantuml_editor_core::ImageFormat::Svg => "SVG",
+                };
+                ErrorCode::ExportError {
+                    format: format_str.to_string(),
+                }
             };
             
-            let response = ConvertResponse::error(
-                StatusLevel::Error,
-                error_code,
-                None,
-            );
+            let response = ConvertResponse::error(error_code);
             (StatusCode::OK, Json(response)).into_response()
         }
     }

@@ -16,31 +16,21 @@ pub enum ValidationError {
 }
 
 impl ValidationError {
-    /// Convert to ErrorCode
+    /// Convert to ErrorCode with embedded data
     pub fn to_error_code(&self) -> ErrorCode {
         match self {
             ValidationError::EmptyContent => ErrorCode::ValidationEmpty,
-            ValidationError::ContentTooLarge(_, _) => ErrorCode::ValidationTextLimit,
-            ValidationError::InvalidUtf8 => ErrorCode::ParseError,
+            ValidationError::ContentTooLarge(actual, max) => ErrorCode::ValidationTextLimit {
+                actual: *actual,
+                max: *max,
+            },
+            ValidationError::InvalidUtf8 => ErrorCode::ParseError { line: None },
         }
     }
     
     /// Get status level for this validation error
     pub fn status_level(&self) -> StatusLevel {
         StatusLevel::Warning
-    }
-    
-    /// Get context for error (e.g., max length)
-    pub fn context(&self) -> Option<serde_json::Value> {
-        match self {
-            ValidationError::ContentTooLarge(actual, max) => {
-                Some(serde_json::json!({
-                    "actual": actual,
-                    "maxLength": max
-                }))
-            }
-            _ => None,
-        }
     }
 }
 

@@ -1,6 +1,6 @@
 // API client errors
 
-use plantuml_editor_core::{ProcessResult, ErrorCode, StatusLevel};
+use plantuml_editor_core::{ProcessResult, ErrorCode};
 
 /// API client error types
 #[derive(Debug, Clone)]
@@ -9,20 +9,14 @@ pub enum ApiError {
     NetworkError(String),
     /// Server returned an error response
     ServerError(String),
-    /// Validation error (4xx status codes)
-    ValidationError(String),
     /// Processing error with code
-    ProcessError { code: ErrorCode, level: StatusLevel, context: Option<serde_json::Value> },
+    ProcessError(ErrorCode),
 }
 
 impl ApiError {
     /// Convert from ProcessResult
     pub fn from_process_result(result: ProcessResult) -> Self {
-        ApiError::ProcessError {
-            code: result.code,
-            level: result.level,
-            context: result.context,
-        }
+        ApiError::ProcessError(result.code)
     }
 }
 
@@ -31,8 +25,7 @@ impl std::fmt::Display for ApiError {
         match self {
             ApiError::NetworkError(msg) => write!(f, "ネットワークエラー: {}", msg),
             ApiError::ServerError(msg) => write!(f, "サーバーエラー: {}", msg),
-            ApiError::ValidationError(msg) => write!(f, "入力エラー: {}", msg),
-            ApiError::ProcessError { code, .. } => write!(f, "処理エラー: {:?}", code),
+            ApiError::ProcessError(code) => write!(f, "処理エラー: {}", code.to_message()),
         }
     }
 }
