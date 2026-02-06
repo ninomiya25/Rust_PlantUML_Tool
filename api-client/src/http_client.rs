@@ -26,13 +26,13 @@ pub async fn convert_plantuml(
         .json(&request)
         .send()
         .await
-        .map_err(|e| ApiError::NetworkError(e.to_string()))?;
+        .map_err(|_| ApiError::NetworkError("サーバーが応答していません。時間をおいて再度接続を試すか管理者に問い合わせてください。".to_string()))?;
     
     if response.status().is_success() {
         let convert_response: ConvertResponse = response
             .json()
             .await
-            .map_err(|e| ApiError::NetworkError(format!("レスポンスの解析に失敗: {}", e)))?;
+            .map_err(|_| ApiError::NetworkError("レスポンスの解析に失敗しました。".to_string()))?;
         
         // Check if conversion succeeded
         if let Some(image_data) = convert_response.image_data {
@@ -72,13 +72,13 @@ pub async fn export_plantuml(
         .json(&request)
         .send()
         .await
-        .map_err(|e| ApiError::NetworkError(e.to_string()))?;
+        .map_err(|_| ApiError::NetworkError("サーバーが応答していません。時間をおいて再度接続を試すか管理者に問い合わせてください。".to_string()))?;
     
     if response.status().is_success() {
         let convert_response: ConvertResponse = response
             .json()
             .await
-            .map_err(|e| ApiError::NetworkError(format!("レスポンスの解析に失敗: {}", e)))?;
+            .map_err(|_| ApiError::NetworkError("レスポンスの解析に失敗しました。".to_string()))?;
         
         if let Some(image_data) = convert_response.image_data {
             Ok((image_data, convert_response.result))
