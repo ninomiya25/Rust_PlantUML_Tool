@@ -28,18 +28,6 @@ fn test_document_validation_empty() {
 }
 
 #[test]
-fn test_document_validation_missing_start_tag() {
-    let doc = PlantUMLDocument::new("Alice -> Bob\n@enduml".to_string());
-    assert!(doc.validate().is_err());
-}
-
-#[test]
-fn test_document_validation_missing_end_tag() {
-    let doc = PlantUMLDocument::new("@startuml\nAlice -> Bob".to_string());
-    assert!(doc.validate().is_err());
-}
-
-#[test]
 fn test_document_validation_too_large() {
     let large_content = format!("@startuml\n{}\n@enduml", "x".repeat(25000));
     let doc = PlantUMLDocument::new(large_content);
@@ -153,15 +141,31 @@ fn test_storage_slot_key() {
 
 #[test]
 fn test_convert_request_validation() {
+    // Valid request with tags
     let valid_request = ConvertRequest {
         plantuml_text: "@startuml\nAlice -> Bob\n@enduml".to_string(),
         format: ImageFormat::Png,
     };
     assert!(valid_request.validate().is_ok());
     
-    let invalid_request = ConvertRequest {
-        plantuml_text: "invalid".to_string(),
+    // Valid request without tags (tags are not validated - PlantUML.jar handles this)
+    let valid_without_tags = ConvertRequest {
+        plantuml_text: "Alice -> Bob".to_string(),
         format: ImageFormat::Png,
     };
-    assert!(invalid_request.validate().is_err());
+    assert!(valid_without_tags.validate().is_ok());
+    
+    // Invalid: Empty content
+    let invalid_empty = ConvertRequest {
+        plantuml_text: "   ".to_string(),
+        format: ImageFormat::Png,
+    };
+    assert!(invalid_empty.validate().is_err());
+    
+    // Invalid: Content too large (over 24,000 chars)
+    let invalid_too_large = ConvertRequest {
+        plantuml_text: "x".repeat(25000),
+        format: ImageFormat::Png,
+    };
+    assert!(invalid_too_large.validate().is_err());
 }
