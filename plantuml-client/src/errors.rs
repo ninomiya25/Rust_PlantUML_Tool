@@ -3,18 +3,11 @@
 /// Client errors
 #[derive(Debug, thiserror::Error)]
 pub enum ClientError {
+    /// タイムアウト・ネットワークエラーなどの通信障害、PlantUML サーバーが HTTP エラーを返した場合を含む
     #[error("ネットワークエラー: {0}")]
     Network(#[from] reqwest::Error),
     
-    #[error("タイムアウト: PlantUMLサーバーが応答しません")]
-    Timeout,
-    
-    #[error("PlantUMLサーバーエラー: {0}")]
-    ServerError(String),
-    
-    #[error("無効なレスポンス形式")]
-    InvalidResponse,
-    
+    /// エンコード処理で発生したエラー
     #[error("エンコードエラー: {0}")]
     EncodingError(String),
 }
