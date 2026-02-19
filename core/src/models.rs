@@ -79,7 +79,7 @@ pub enum StatusLevel {
 
 /// Error codes for processing results (Algebraic Data Type)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type", content = "data")]
+#[serde(tag = "type")] 
 pub enum ErrorCode {
     // 正常完了 (INFO)
     ConversionOk,
@@ -278,30 +278,10 @@ impl ProcessResult {
         Self { level, code }
     }
     
-    /// Create a success result
-    pub fn success(code: ErrorCode) -> Self {
-        Self::new(code)
-    }
-    
-    /// Create an error result
-    pub fn error(code: ErrorCode) -> Self {
-        Self::new(code)
-    }
-    
     /// Get user-friendly message
     pub fn message(&self) -> String {
         self.code.to_message()
     }
-}
-
-/// Generation result status
-#[derive(Debug, Clone)]
-pub enum GenerationResult {
-    /// Success (valid diagram)
-    Success,
-    
-    /// Syntax error (error image generated)
-    SyntaxError { message: String },
 }
 
 /// Diagram image data with metadata
@@ -321,9 +301,6 @@ pub struct DiagramImage {
     
     /// Generation timestamp (Unix timestamp)
     pub generated_at: i64,
-    
-    /// Generation result
-    pub result: GenerationResult,
 }
 
 impl DiagramImage {
@@ -460,7 +437,7 @@ impl ConvertResponse {
     /// Create success response with image data
     pub fn success(image_data: Vec<u8>) -> Self {
         Self {
-            result: ProcessResult::success(ErrorCode::ConversionOk),
+            result: ProcessResult::new(ErrorCode::ConversionOk),
             image_data: Some(image_data),
         }
     }
@@ -468,7 +445,7 @@ impl ConvertResponse {
     /// Create error response without image data
     pub fn error(code: ErrorCode) -> Self {
         Self {
-            result: ProcessResult::error(code),
+            result: ProcessResult::new(code),
             image_data: None,
         }
     }

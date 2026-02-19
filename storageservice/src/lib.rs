@@ -19,7 +19,9 @@ pub struct SlotInfo {
 }
 
 /// Storage backend trait
-pub trait StorageBackend {
+/// 
+/// Clone is required to enable dependency injection in Yew components
+pub trait StorageBackend: Clone {
     fn save_to_slot(&self, slot_number: usize, text: &str) -> Result<(), StorageError>;
     fn load_from_slot(&self, slot_number: usize) -> Result<Option<String>, StorageError>;
     fn list_slots(&self) -> Vec<SlotInfo>;
@@ -27,6 +29,7 @@ pub trait StorageBackend {
 }
 
 /// Storage service with pluggable backend
+#[derive(Clone, PartialEq)]
 pub struct StorageService<B: StorageBackend> {
     backend: B,
 }
@@ -74,10 +77,10 @@ pub fn storage_error_to_result(error: &StorageError, _slot_number: Option<u8>) -
         }
     };
     
-    ProcessResult::error(code)
+    ProcessResult::new(code)
 }
 
 /// Create success ProcessResult for storage operations
 pub fn storage_success_result(code: ErrorCode, _slot_number: u8) -> ProcessResult {
-    ProcessResult::success(code)
+    ProcessResult::new(code)
 }
