@@ -7,7 +7,7 @@ use plantuml_editor_core::StorageError;
 use plantuml_editor_core::{PlantUMLDocument, DocumentId, StorageSlot};
 
 /// LocalStorage backend for browser-based storage
-#[derive(Default)]
+#[derive(Default, Clone, PartialEq)]
 pub struct LocalStorageBackend;
 
 impl LocalStorageBackend {
