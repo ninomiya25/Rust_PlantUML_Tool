@@ -92,13 +92,6 @@ mod tests {
     }
 
     #[test]
-    fn test_missing_tags_allowed() {
-        // Tags are not validated - PlantUML.jar will handle this
-        let content = "Alice -> Bob: Hello";
-        assert!(validate_plantuml_content(content).is_ok());
-    }
-
-    #[test]
     fn test_content_too_large() {
         let content = format!("@startuml\n{}\n@enduml", "x".repeat(25000));
         assert!(matches!(

@@ -331,11 +331,13 @@ impl DiagramImage {
     }
     
     /// Convert to Data URL format (for img src attribute)
+    /// バイナリ画像データをHTMLで直接表示可能な Data URL 形式に変換して返す
     pub fn to_data_url(&self) -> String {
         let mime_type = match self.format {
             ImageFormat::Png => "image/png",
             ImageFormat::Svg => "image/svg+xml",
         };
+        ///バイナリデータ（Vec<u8>）をBase64文字列に変換
         use base64::Engine;
         let base64_data = base64::engine::general_purpose::STANDARD.encode(&self.data);
         format!("data:{};base64,{}", mime_type, base64_data)
