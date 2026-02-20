@@ -435,9 +435,9 @@ pub struct ConvertResponse {
 
 impl ConvertResponse {
     /// Create success response with image data
-    pub fn success(image_data: Vec<u8>) -> Self {
+    pub fn success(image_data: Vec<u8>, code: ErrorCode) -> Self {
         Self {
-            result: ProcessResult::new(ErrorCode::ConversionOk),
+            result: ProcessResult::new(code),
             image_data: Some(image_data),
         }
     }

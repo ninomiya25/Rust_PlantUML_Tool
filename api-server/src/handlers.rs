@@ -60,7 +60,7 @@ pub async fn convert(Json(payload): Json<ConvertRequest>) -> Response {
     match result {
         Ok(image) => {
             tracing::info!("PlantUML conversion successful: {} bytes", image.data.len());
-            let response = ConvertResponse::success(image.data);
+            let response = ConvertResponse::success(image.data, ErrorCode::ConversionOk);
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(e) => {
@@ -119,8 +119,7 @@ pub async fn export(Json(payload): Json<ConvertRequest>) -> Response {
         Ok(image) => {
             tracing::info!("PlantUML export successful: {} bytes", image.data.len());
             // Return ExportOk instead of ConversionOk
-            let mut response = ConvertResponse::success(image.data);
-            response.result.code = ErrorCode::ExportOk;
+            let response = ConvertResponse::success(image.data, ErrorCode::ExportOk);
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(e) => {
