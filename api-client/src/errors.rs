@@ -31,3 +31,47 @@ impl std::fmt::Display for ApiError {
 }
 
 impl std::error::Error for ApiError {}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use plantuml_editor_core::ErrorCode;
+
+    // ========================================
+    // ApiError::Display トレイトのテスト
+    // ========================================
+
+    #[test]
+    fn test_api_error_display_network_error() {
+        // NetworkError のDisplay実装をテスト
+        // 期待される出力: "ネットワークエラー: {メッセージ}"
+        let error = ApiError::NetworkError("接続タイムアウト".to_string());
+        let display_string = format!("{}", error);
+        
+        assert_eq!(display_string, "ネットワークエラー: 接続タイムアウト");
+    }
+
+    #[test]
+    fn test_api_error_display_server_error() {
+        // ServerError のDisplay実装をテスト
+        // 期待される出力: "サーバーエラー: {メッセージ}"
+        let error = ApiError::ServerError("HTTPエラー: 500".to_string());
+        let display_string = format!("{}", error);
+        
+        assert_eq!(display_string, "サーバーエラー: HTTPエラー: 500");
+    }
+
+    #[test]
+    fn test_api_error_display_process_error_validation_empty() {
+        // ProcessError (ValidationEmpty) のDisplay実装をテスト
+        // ErrorCode::to_message() が正しく呼ばれることを確認
+        let error = ApiError::ProcessError(ErrorCode::ValidationEmpty);
+        let display_string = format!("{}", error);
+        
+        assert_eq!(
+            display_string,
+            "処理エラー: PlantUMLソースを入力してください"
+        );
+    }
+}
