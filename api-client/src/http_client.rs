@@ -2,6 +2,13 @@
 
 use crate::errors::ApiError;
 use plantuml_editor_core::{ConvertRequest, ConvertResponse, ImageFormat, ProcessResult};
+use std::env;
+
+fn get_api_base_url() -> String {
+    env::var("API_BASE_URL")
+        .unwrap_or_else(|_| "http://localhost:8080".to_string())
+}
+
 
 /// Convert PlantUML text to image via API server
 ///
@@ -21,8 +28,9 @@ pub async fn convert_plantuml(
     };
     
     let client = reqwest::Client::new();
+    let api_base_url = get_api_base_url();
     let response = client
-        .post("http://localhost:8080/api/v1/convert")
+        .post(format!("{}/api/v1/convert", api_base_url))
         .json(&request)
         .send()
         .await
@@ -67,8 +75,9 @@ pub async fn export_plantuml(
     };
     
     let client = reqwest::Client::new();
+    let api_base_url = get_api_base_url();
     let response = client
-        .post("http://localhost:8080/api/v1/export")
+        .post(format!("{}/api/v1/export", api_base_url))
         .json(&request)
         .send()
         .await
